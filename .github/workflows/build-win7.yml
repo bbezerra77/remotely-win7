@@ -26,8 +26,11 @@ jobs:
       - name: Compilar Desktop.Win
         run: dotnet build Desktop.Win/Desktop.Win.csproj -c Release
 
+      - name: Configurar MSBuild (necessario para referencias COM)
+        uses: microsoft/setup-msbuild@v2
+
       - name: Compilar Agent.Installer.Win
-        run: dotnet build Agent.Installer.Win/Agent.Installer.Win.csproj -c Release
+        run: msbuild Agent.Installer.Win\Agent.Installer.Win.csproj /p:Configuration=Release
 
       - name: Empacotar resultados
         uses: actions/upload-artifact@v4
