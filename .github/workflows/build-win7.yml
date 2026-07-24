@@ -1,0 +1,40 @@
+name: Build Remotely Win7 Client
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code (com submodulos)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Instalar .NET 6 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Restaurar dependencias
+        run: dotnet restore Remotely.sln
+
+      - name: Compilar Agent
+        run: dotnet build Agent/Agent.csproj -c Release
+
+      - name: Compilar Desktop.Win
+        run: dotnet build Desktop.Win/Desktop.Win.csproj -c Release
+
+      - name: Compilar Agent.Installer.Win
+        run: dotnet build Agent.Installer.Win/Agent.Installer.Win.csproj -c Release
+
+      - name: Empacotar resultados
+        uses: actions/upload-artifact@v4
+        with:
+          name: remotely-win7-build
+          path: |
+            Agent/bin/Release/**/*
+            Desktop.Win/bin/Release/**/*
+            Agent.Installer.Win/bin/Release/**/*
+          if-no-files-found: warn
